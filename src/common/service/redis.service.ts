@@ -8,10 +8,10 @@ export class RedisService {
 
   constructor(private readonly configService: ConfigService) {
     this.redisClient = new Redis({
-      host: this.configService.get('REDIS_HOST'),
-      port: parseInt(this.configService.get('REDIS_PORT')),
-      db: parseInt(this.configService.get('REDIS_DB')),
-      password: this.configService.get('REDIS_PASSPORT')
+      host: this.configService.get('REDIS_HOST', 'localhost'),
+      port: parseInt(this.configService.get('REDIS_PORT','6379')),
+      db: parseInt(this.configService.get('REDIS_DB','0')),
+      password: this.configService.get('REDIS_PASSPORT', '')
     });
   }
 

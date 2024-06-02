@@ -10,7 +10,7 @@ datasource db {
 model user {
   id               Int                @id @default(autoincrement())
   name             String             @unique(map: "name") @db.VarChar(10)
-  password         String             @db.VarChar(32)
+  password         String             @db.VarChar(64)
   createAt         DateTime?          @default(dbgenerated("(now())")) @db.DateTime(0)
   updateAt         DateTime?          @default(dbgenerated("(now())")) @db.DateTime(0)
 }
