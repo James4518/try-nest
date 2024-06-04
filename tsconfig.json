@@ -11,7 +11,8 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "keys/*": ["src/common/config/keys/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

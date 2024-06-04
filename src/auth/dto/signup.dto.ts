@@ -30,4 +30,4 @@ export const createUserSchema = z.object({
   path: ["confirmPassword"], 
 })
 
-export type CreateUserDto = z.infer<typeof createUserSchema>
+export type SignUpDto = z.infer<typeof createUserSchema>
