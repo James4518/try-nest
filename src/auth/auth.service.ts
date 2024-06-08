@@ -1,19 +1,19 @@
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/modules/user/user.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import { comparePasswd } from "@/common/utils/passwd"
+import { PrismaService } from '@/common/service/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaClient,
+    private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService
   ) {}
   async signup(data) {
     delete data.confirmPassword;
-    const { password, ...userWithoutPassword } = await this.prisma.user.create({ data });
+    const { password, ...userWithoutPassword } = await this.prismaService.user.create({ data });
     return userWithoutPassword;
   }
   async signIn(name: string, password: string): Promise<{ access_token: string }> {
