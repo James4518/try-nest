@@ -1,14 +1,17 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { RedisClientType } from 'redis';
-
-interface ZMember {
-  score: number;
-  value: string | Buffer;
-}
+import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 
 @Injectable()
-export class RedisService {
-  @Inject('REDIS_CLIENT') private redisClient: RedisClientType;
+export class RedisService implements OnApplicationShutdown {
+  private isClientClosed: boolean = false;
+  constructor(
+    @Inject('REDIS_CLIENT') private redisClient:{ [key: string]: (...args: any[]) => Promise<any> }){
+      this.redisClient.on('end', () => {
+      this.isClientClosed = true;
+    });
+  }
+  getClient() {
+    return this.redisClient;
+  }
 
   async setString(key: string, value: string): Promise<string | null> {
     return this.redisClient.set(key, value);
@@ -21,43 +24,43 @@ export class RedisService {
   }
 
   async setHash(hashKey: string, field: string, value: string): Promise<number> {
-    return this.redisClient.hSet(hashKey, field, value);
+    return this.redisClient.hset(hashKey, field, value);
   }
   async getHash(hashKey: string, field: string): Promise<string | null> {
-    return this.redisClient.hGet(hashKey, field);
+    return this.redisClient.hget(hashKey, field);
   }
   async delHash(hashKey: string, field: string): Promise<number> {
-    return this.redisClient.hDel(hashKey, field);
+    return this.redisClient.hdel(hashKey, field);
   }
 
   async addSet(setKey: string, member: string): Promise<number> {
-    return this.redisClient.sAdd(setKey, member);
+    return this.redisClient.sadd(setKey, member);
   }
   async removeSet(setKey: string, member: string): Promise<number> {
-    return this.redisClient.sRem(setKey, member);
+    return this.redisClient.srem(setKey, member);
   }
   async getSetMembers(setKey: string): Promise<string[]> {
-    return this.redisClient.sMembers(setKey);
+    return this.redisClient.smembers(setKey);
   }
 
   async pushList(listKey: string, value: string): Promise<number> {
-    return this.redisClient.lPush(listKey, value);
+    return this.redisClient.lpush(listKey, value);
   }
   async popFromList(listKey: string): Promise<string | null> {
-    return this.redisClient.lPop(listKey);
+    return this.redisClient.lpop(listKey);
   }
   async getList(listKey: string, start: number, end: number): Promise<string[]> {
-    return this.redisClient.lRange(listKey, start, end);
+    return this.redisClient.lrange(listKey, start, end);
   }
 
-  async addSortedSetMember(sortedSetKey: string, members: ZMember | Array<ZMember>): Promise<number> {
-    return this.redisClient.zAdd(sortedSetKey, members);
+  async addSortedSetMember(key: string, score: number, member: string): Promise<number> {
+    return this.redisClient.zadd(key, score, member);
   }
   async removeFromSortedSet(sortedSetKey: string, member: string): Promise<number> {
-    return this.redisClient.zRem(sortedSetKey, member);
+    return this.redisClient.zrem(sortedSetKey, member);
   }
   async getSortedSetRangeByScore(sortedSetKey: string, min: number, max: number): Promise<string[]> {
-    return this.redisClient.zRangeByScore(sortedSetKey, min, max);
+    return this.redisClient.zrangebyscore(sortedSetKey, min, max);
   }
 
   async isExists(key: string): Promise<boolean> {
@@ -65,7 +68,7 @@ export class RedisService {
     return exists === 1;
   }
   async isExpire(key: string, seconds: number): Promise<boolean> {
-    return this.redisClient.expire(key, seconds);
+    return !!this.redisClient.expire(key, seconds);
   }
   async ttl(key: string): Promise<number> {
     return this.redisClient.ttl(key);
@@ -73,7 +76,21 @@ export class RedisService {
   async keys(pattern: string): Promise<string[]> {
     return this.redisClient.keys(pattern)
   }
-  async smembers(key: string, member: string): Promise<boolean> {
-    return this.redisClient.sIsMember(key, member)
+  async smembers(key: string, member: string): Promise<number> {
+    return this.redisClient.sismember(key, member)
+  }
+
+  async onApplicationShutdown(signal?: string): Promise<void> {
+    if (this.isClientClosed) {
+      return;
+    }
+
+    await new Promise<void>((resolve) => {
+      this.redisClient.on('end', () => {
+        resolve();
+      });
+      this.redisClient.quit();
+      this.isClientClosed = true;
+    });
   }
 }

@@ -6,6 +6,7 @@ import { SignInDto } from './dto/signin.dto';
 import { UserService } from '@/modules/user/user.service';
 import { AuthService } from './auth.service';
 import { encryptPasswd } from "@/common/utils/passwd";
+import { Public } from '@/common/decorators/public.decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +16,7 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @Public()
   @UsePipes(new ValidationUserPipe(createUserSchema))
   async register(@Body() data: SignUpDto): Promise<Omit<user,'password'>> {
     console.log(data)
@@ -25,6 +27,7 @@ export class AuthController {
   }
 
   @Post('signin')
+  @Public()
   async signIn(@Body() signInDto: SignInDto): Promise<any> {
     return this.authService.signIn(signInDto.name, signInDto.password);
   }
