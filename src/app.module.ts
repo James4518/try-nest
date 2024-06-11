@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { RedisModule } from './common/databases/redis/redis.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { MomentModule } from './modules/moment/moment.module';
+import { AppService } from './app.service';
 import { PrismaService } from './common/service/prisma.service';
 
 @Module({
@@ -12,7 +13,7 @@ import { PrismaService } from './common/service/prisma.service';
     envFilePath: `.env.${process.env.NODE_ENV}`,
     isGlobal: true,
     }), 
-    RedisModule, AuthModule, UserModule
+    RedisModule, AuthModule, UserModule, MomentModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
