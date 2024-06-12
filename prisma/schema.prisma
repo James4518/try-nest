@@ -13,6 +13,7 @@ model user {
   password String    @db.VarChar(64)
   createAt DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
   updateAt DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
+  comment  comment[]
   moment   moment[]
 }
 
@@ -25,7 +26,25 @@ model moment {
   likeCount    Int       @default(0)
   collectCount Int       @default(0)
   createAt     DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
+  comment      comment[]
   user         user      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "moment_ibfk_1")
 
+  @@index([userId], map: "userId")
+}
+
+model comment {
+  id            Int       @id @default(autoincrement())
+  content       String    @db.Text
+  momentId      Int
+  userId        Int
+  commentId     Int?
+  createAt      DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
+  moment        moment    @relation(fields: [momentId], references: [id], onDelete: Cascade, map: "comment_ibfk_1")
+  user          user      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "comment_ibfk_2")
+  comment       comment?  @relation("commentTocomment", fields: [commentId], references: [id], onDelete: Cascade, map: "comment_ibfk_3")
+  other_comment comment[] @relation("commentTocomment")
+
+  @@index([commentId], map: "commentId")
+  @@index([momentId], map: "momentId")
   @@index([userId], map: "userId")
 }

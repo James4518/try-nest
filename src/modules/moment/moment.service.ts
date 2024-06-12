@@ -5,15 +5,14 @@ import { moment } from '@prisma/client';
 @Injectable()
 export class MomentService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(userId, content, visibility): Promise<number> {
-    const res = this.prisma.moment.create({
+  async create(userId, content, visibility): Promise<moment> {
+    return this.prisma.moment.create({
       data: {
         userId,
         content,
         visibility
       }
     });
-    return (await res).id;
   }
   async remove(id): Promise<moment> {
     return this.prisma.moment.delete({
