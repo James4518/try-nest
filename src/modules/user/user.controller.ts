@@ -1,6 +1,5 @@
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from '@/auth/auth.guard';
 import { Public } from '@/common/decorators/public.decorators';
 
 @Controller('user')
@@ -13,11 +12,5 @@ export class UserController {
     offset = offset || 0;
     size = size || 10;
     return this.userService.findAll(offset, size);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
   }
 }
