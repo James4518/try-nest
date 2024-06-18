@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Public } from '@/common/decorators/public.decorators';
 import { CreateMomentDto } from './dto/create.dto';
 import { RedisService } from '@/common/databases/redis/redis.service';
 import { MomentService } from './moment.service';
 import { MomentGuard } from './moment.guard';
 import { moment } from '@prisma/client';
+import { PermissionGuard } from '@/common/guards/permission.guard';
+import { MomentRes } from './moment.interface';
 
 @Controller('moment')
 export class MomentController {
@@ -32,12 +34,35 @@ export class MomentController {
     return res;
   }
 
+  @UseGuards(PermissionGuard)
+  @Post('/labels/:momentId')
+  async addLabel(@Req() req, @Param('momentId') momentId:number) {
+    const { labels } = req;
+    for (const label of labels) {
+      const isExisit = await this.momentService.hasLabel(momentId, label.id);
+      if (isExisit) continue;
+      await this.momentService.addLabel(momentId, label.id);
+    }
+  }
+
   @Public()
   @Get('/list')
-  async list(@Query('offset') offset: number, @Query('size') size: number): Promise<moment[]> {
+  async list(@Query('offset') offset: number, @Query('size') size: number): Promise<MomentRes[]> {
     offset = offset || 0;
     size = size || 10;
     return this.momentService.findAll(offset, size);
+  }
+
+  @Public()
+  @Get('/label/:labelName')
+  async labelMoment
+  (@Param('labelName') labelName:string, 
+   @Query('offset') offset: number, 
+   @Query('size') size: number
+  ): Promise<MomentRes[]> {
+    offset = offset || 0;
+    size = size || 10;
+    return this.momentService.findAllLabelName(labelName, offset, size);
   }
 
   @Delete("/:momentId")

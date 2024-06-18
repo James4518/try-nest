@@ -2,7 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/modules/user/user.service';
 import { Injectable } from '@nestjs/common';
 import { comparePasswd } from "@/common/utils/passwd"
-import { PrismaService } from '@/common/service/prisma.service';
+import { PrismaService } from '@/common/services/prisma.service';
 import { user } from '@prisma/client';
 import { jwtConstants } from './auth.constants';
 

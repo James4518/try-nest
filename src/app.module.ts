@@ -7,19 +7,21 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { MomentModule } from './modules/moment/moment.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { LabelModule } from './modules/label/label.module';
 import { AppService } from './app.service';
-import { PrismaService } from './common/service/prisma.service';
-import { CompositeGuard } from './common/guard';
+import { PrismaService } from './common/services/prisma.service';
+import { CompositeGuard } from './common/guards/composite.guard';
+import { PermissionService } from './common/services/permission.service';
 
 @Module({
   imports: [ConfigModule.forRoot({
     envFilePath: `.env.${process.env.NODE_ENV}`,
     isGlobal: true,
     }), 
-    RedisModule, AuthModule, UserModule, MomentModule, CommentModule
+    RedisModule, AuthModule, UserModule, MomentModule, CommentModule, LabelModule
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, 
+  providers: [AppService, PrismaService, PermissionService,
     {
       provide: APP_GUARD,
       useClass: CompositeGuard,
