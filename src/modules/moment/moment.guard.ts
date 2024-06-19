@@ -23,7 +23,7 @@ export class MomentGuard implements CanActivate {
     } else if (visibility === 'public') {
       return true;
     } else {
-      const set = await this.redisService.getSetMembers(`follow:user${userId}`);
+      const set = await this.redisService.smembers(`follow:user${userId}`);
       request['isFollow'] = set.includes(author) ? 'y' : 'n';
       return true;
     }

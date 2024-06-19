@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/services/prisma.service';
 import { moment, moment_label } from '@prisma/client';
 import { MomentRes } from './moment.interface';
+import { RedisService } from '@/common/databases/redis/redis.service';
 
 @Injectable()
 export class MomentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisService: RedisService
+  ) {}
   async create(userId, content, visibility): Promise<moment> {
     return this.prisma.moment.create({
       data: {
@@ -41,6 +45,10 @@ export class MomentService {
       },
     });
     return !!label;
+  }
+  async getMomentData(id) {
+    const momentDataStr = await this.redisService.getHash("moments", `moment_${id}`);
+    return JSON.parse(momentDataStr);
   }
   async showPart(id): Promise<moment> {
     const data = this.prisma.moment.findUnique({

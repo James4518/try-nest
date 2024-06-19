@@ -33,18 +33,15 @@ export class RedisService implements OnApplicationShutdown {
     return this.redisClient.hdel(hashKey, field);
   }
 
-  async addSet(setKey: string, member: string): Promise<number> {
+  async addSet(setKey: string, member: number): Promise<number> {
     return this.redisClient.sadd(setKey, member);
   }
-  async removeSet(setKey: string, member: string): Promise<number> {
+  async removeSet(setKey: string, member: number): Promise<number> {
     return this.redisClient.srem(setKey, member);
   }
-  async getSetMembers(setKey: string): Promise<string[]> {
-    return this.redisClient.smembers(setKey);
-  }
 
-  async pushList(listKey: string, value: string): Promise<number> {
-    return this.redisClient.lpush(listKey, value);
+  async pushList(listKey: string, ...values: string[]): Promise<number> {
+    return this.redisClient.lpush(listKey, ...values);
   }
   async popFromList(listKey: string): Promise<string | null> {
     return this.redisClient.lpop(listKey);
@@ -76,14 +73,14 @@ export class RedisService implements OnApplicationShutdown {
   async keys(pattern: string): Promise<string[]> {
     return this.redisClient.keys(pattern)
   }
-  async smembers(key: string, member: string): Promise<number> {
+  async smembers(key: string): Promise<string[]> {
+    return this.redisClient.smembers(key)
+  }
+  async sismember(key: string, member: number): Promise<number> {
     return this.redisClient.sismember(key, member)
   }
-
   async onApplicationShutdown(signal?: string): Promise<void> {
-    if (this.isClientClosed) {
-      return;
-    }
+    if (this.isClientClosed) return;
 
     await new Promise<void>((resolve) => {
       this.redisClient.on('end', () => {
