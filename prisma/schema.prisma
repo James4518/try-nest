@@ -8,45 +8,50 @@ datasource db {
 }
 
 model user {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique(map: "name") @db.VarChar(10)
-  password  String    @db.VarChar(64)
-  createAt  DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
-  updateAt  DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
-  comment   comment[]
-  moments   moment[]
+  id       Int       @id @default(autoincrement())
+  name     String    @unique(map: "name") @db.VarChar(10)
+  password String    @db.VarChar(64)
+  createAt DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
+  updateAt DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
+  avatarUrl String   @db.VarChar(50)
+  avatar   avatar[]
+  comment  comment[]
+  moments  moment[]
 }
 
 model moment {
-  id            Int      @id @default(autoincrement())
-  content       String   @db.Text
-  userId        Int
-  visibility    String   @db.VarChar(8)
-  viewCount     Int      @default(0)
-  likeCount     Int      @default(0)
-  collectCount  Int      @default(0)
-  createAt      DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
-  comments      comment[]
-  author        user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "moment_ibfk_1")
-  labels        moment_label[]
+  id           Int            @id @default(autoincrement())
+  content      String         @db.Text
+  userId       Int
+  visibility   String         @db.VarChar(8)
+  viewCount    Int            @default(0)
+  likeCount    Int            @default(0)
+  collectCount Int            @default(0)
+  createAt     DateTime?      @default(dbgenerated("(now())")) @db.DateTime(0)
+  comments     comment[]
+  author       user           @relation(fields: [userId], references: [id], onDelete: Cascade, map: "moment_ibfk_1")
+  labels       moment_label[]
 
   @@index([userId], map: "userId")
 }
 
 model comment {
-  id       Int      @id @default(autoincrement())
-  content  String   @db.Text
-  momentId Int
-  userId   Int
-  commentId     Int?
-  createAt DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
-  user     user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "comment_ibfk_2")
-  moment   moment   @relation(fields: [momentId], references: [id], onDelete: Cascade, map: "comment_ibfk_1")
+  id        Int       @id @default(autoincrement())
+  content   String    @db.Text
+  momentId  Int
+  userId    Int
+  commentId Int?
+  createAt  DateTime? @default(dbgenerated("(now())")) @db.DateTime(0)
+  moment    moment    @relation(fields: [momentId], references: [id], onDelete: Cascade, map: "comment_ibfk_1")
+  user      user      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "comment_ibfk_2")
+
+  @@index([momentId], map: "comment_ibfk_1")
+  @@index([userId], map: "comment_ibfk_2")
 }
 
 model label {
-  id      Int      @id @default(autoincrement())
-  name    String   @unique(map: "name") @db.VarChar(8)
+  id      Int            @id @default(autoincrement())
+  name    String         @unique(map: "name") @db.VarChar(8)
   moments moment_label[]
 }
 
@@ -59,4 +64,15 @@ model moment_label {
   @@id([momentId, labelId])
   @@index([labelId], map: "labelId")
   @@index([momentId], map: "momentId")
+}
+
+model avatar {
+  id       Int    @id @default(autoincrement())
+  filename String @unique(map: "filename") @db.VarChar(50)
+  mimetype String @db.VarChar(15)
+  size     Int
+  userId   Int
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade, map: "avatar_ibfk_1")
+
+  @@index([userId], map: "userId")
 }

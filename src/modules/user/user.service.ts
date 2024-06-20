@@ -15,6 +15,16 @@ export class UserService {
   async follow(userId: number): Promise<string[]> {
     return await this.redisService.smembers(`follow:user${userId}`);
   }
+  async updateAvatar(userId, avatarUrl) {
+    return await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        avatarUrl,
+      },
+    });
+  }
   async findAll(offset: number, size: number): Promise<user[]> {
     return this.prisma.user.findMany({
       skip: offset,

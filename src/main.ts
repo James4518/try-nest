@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/exeception/http-exception.filter';
 import { SuccessResponse } from './common/success/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
+import { SERVER_PORT } from '@/common/config/server';
 declare const module: any;
 
 async function bootstrap() {
@@ -15,7 +16,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new SuccessResponse());
-  await app.listen(3000);
+  await app.listen(SERVER_PORT);
   if (module.hot) {
     module.hot.accept();
     module.hot.dispose(() => app.close());

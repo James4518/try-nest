@@ -9,6 +9,7 @@ import { MomentModule } from './modules/moment/moment.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { LabelModule } from './modules/label/label.module';
 import { PraiseModule } from './modules/praise/praise.module';
+import { FileModule } from './modules/file/file.module';
 import { AppService } from './app.service';
 import { PrismaService } from './common/services/prisma.service';
 import { CompositeGuard } from './common/guards/composite.guard';
@@ -19,7 +20,7 @@ import { PermissionService } from './common/services/permission.service';
     envFilePath: `.env.${process.env.NODE_ENV}`,
     isGlobal: true,
     }), 
-    RedisModule, AuthModule, UserModule, MomentModule, CommentModule, LabelModule, PraiseModule
+    RedisModule, AuthModule, UserModule, MomentModule, CommentModule, LabelModule, PraiseModule, FileModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, PermissionService,
