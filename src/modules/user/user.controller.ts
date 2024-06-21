@@ -1,7 +1,7 @@
-import { createReadStream } from 'fs';
-import { join } from 'path';
 import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { createReadStream, promises } from 'fs';
+import { join } from 'path';
 import { AVATAR_PATH } from '@/common/constants';
 import { Public } from '@/common/decorators/public.decorators';
 import { UserService } from './user.service';
@@ -13,6 +13,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly fileService: FileService
   ) {}
+
   @Public()
   @Get('/avatar/:userId')
   async showAvatar(
@@ -21,7 +22,11 @@ export class UserController {
   ) {
     const { filename, mimetype } = await this.fileService.queryAvatar(userId);
     const file = await createReadStream(join(process.cwd(), `${AVATAR_PATH}/${filename}`));
-    res.set({'Content-Type':mimetype});
+    const fileStatus = await promises.stat(`${AVATAR_PATH}/${filename}`);
+    res.set({
+      'Content-Type': mimetype,
+      'Content-Length': fileStatus.size,
+    });
     file.pipe(res);
   }
 

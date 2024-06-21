@@ -1,24 +1,35 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { 
+  Body, Param, Query,
+  Controller, UseGuards, 
+  Get, Post, Delete, 
+  Req, Res, 
+} from '@nestjs/common';
+import { Response } from 'express';
+import { join } from 'path';
+import { ReadStream, createReadStream } from 'fs';
+import { moment } from '@prisma/client';
 import { Public } from '@/common/decorators/public.decorators';
+import { PICTURE_PATH } from '@/common/constants';
 import { CreateMomentDto } from './dto/create.dto';
 import { RedisService } from '@/common/databases/redis/redis.service';
 import { MomentService } from './moment.service';
+import { MomentRes, MomentsRes } from './moment.interface';
+import { FileService } from '../file/file.service';
 import { MomentGuard } from './moment.guard';
-import { moment } from '@prisma/client';
 import { PermissionGuard } from '@/common/guards/permission.guard';
-import { MomentRes } from './moment.interface';
 
 @Controller('moment')
 export class MomentController {
   constructor(
     private readonly momentService: MomentService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
+    private readonly fileService: FileService
   ) {}
 
   @Post()
   async create(@Req() req, @Body() data: CreateMomentDto): Promise<moment> {
     const { moment, visibility } = data;
-    const userId = req.user.id;
+    const userId: number = req.user.id;
     const res = await this.momentService.create(userId, moment, visibility);
     await this.redisService.setHash(
       "moments",
@@ -36,18 +47,20 @@ export class MomentController {
 
   @UseGuards(PermissionGuard)
   @Post('/labels/:momentId')
-  async addLabel(@Req() req, @Param('momentId') momentId:number) {
-    const { labels } = req;
+  async addLabel(@Req() req, @Param('momentId') momentId:number): Promise<string> {
+    const labels:{id?: number;name: string;}[] = req.labels;
     for (const label of labels) {
       const isExisit = await this.momentService.hasLabel(momentId, label.id);
       if (isExisit) continue;
       await this.momentService.addLabel(momentId, label.id);
     }
+    return '创建成功~';
   }
 
   @Public()
   @Get('/list')
-  async list(@Query('offset') offset: number, @Query('size') size: number): Promise<MomentRes[]> {
+  async list(@Query('offset') offset: number, @Query('size') size: number)
+  : Promise<MomentsRes[]> {
     offset = offset || 0;
     size = size || 10;
     return this.momentService.findAll(offset, size);
@@ -59,7 +72,7 @@ export class MomentController {
   (@Param('labelName') labelName:string, 
    @Query('offset') offset: number, 
    @Query('size') size: number
-  ): Promise<MomentRes[]> {
+  ): Promise<MomentsRes[]> {
     offset = offset || 0;
     size = size || 10;
     return this.momentService.findAllLabelName(labelName, offset, size);
@@ -70,10 +83,19 @@ export class MomentController {
     return await this.momentService.remove(momentId);
   }
 
+  @Public()
   @Get("/:momentId")
   @UseGuards(MomentGuard)
-  async detail(@Param('momentId') momentId:number, @Req() req): Promise<moment> {
-    if (req.isFollow === 'n') return await this.momentService.showPart(momentId);
-    return await this.momentService.detail(momentId);
+  async detail(@Param('momentId') momentId:number, @Req() req): Promise<MomentRes> {
+    let res: MomentRes;
+    const imgList = await this.fileService.getImgsByMomentId(momentId);
+    const imgs:string[] = imgList?.map(item => item.location);
+    if (req.isFollow === 'n') {
+      res = await this.momentService.showPart(momentId);
+    } else {
+      res = await this.momentService.detail(momentId);
+    }
+    res.imgList = imgs;
+    return res;
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/common/services/prisma.service';
 import { moment, moment_label } from '@prisma/client';
-import { MomentRes } from './moment.interface';
+import { MomentsRes } from './moment.interface';
 import { RedisService } from '@/common/databases/redis/redis.service';
 
 @Injectable()
@@ -62,7 +62,7 @@ export class MomentService {
       content
     }
   }
-  async findAll(offset: number, size: number): Promise<MomentRes[]> {
+  async findAll(offset: number, size: number): Promise<MomentsRes[]> {
     return this.prisma.moment.findMany({
       select: {
         id: true,
@@ -89,7 +89,7 @@ export class MomentService {
       take: size,
     });
   }
-  async findAllLabelName(labelName: string, offset: number, size: number): Promise<MomentRes[]> {
+  async findAllLabelName(labelName: string, offset: number, size: number): Promise<MomentsRes[]> {
     return await this.prisma.moment.findMany({
       select: {
         id: true,
