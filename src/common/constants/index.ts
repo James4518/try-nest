@@ -1,5 +1,6 @@
 const NAME_REGEX = /^(?![_0-9])[\u4e00-\u9fa5a-zA-Z0-9\s_]+$/
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{6,}$/
+const PICTURE_REGEX = /(\d+)-([a-zA-Z\u4e00-\u9fa5\-\s]+)\.(jpg|jpeg|png)/
 
 const NAME_OR_PASSWORD_IS_REQUIRED = "用户名或者密码不能为空~";
 const NAME_IS_ALREADY_EXISTS = "用户名已经被占用~";
@@ -24,6 +25,7 @@ export {
   PICTURE_PATH,
   NAME_REGEX,
   PASSWORD_REGEX,
+  PICTURE_REGEX,
   NAME_OR_PASSWORD_IS_REQUIRED,
   NAME_IS_ALREADY_EXISTS,
   NAME_LENGTH,

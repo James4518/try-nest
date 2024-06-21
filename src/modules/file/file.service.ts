@@ -59,6 +59,7 @@ export class FileService {
         filename,
       },
       select: {
+        filename: true,
         mimetype: true,
         size: true,
         location: true,

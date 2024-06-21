@@ -15,6 +15,7 @@ import { RedisService } from '@/common/databases/redis/redis.service';
 import { MomentService } from './moment.service';
 import { MomentRes, MomentsRes } from './moment.interface';
 import { FileService } from '../file/file.service';
+import { PictureService } from '../picture/picture.service';
 import { MomentGuard } from './moment.guard';
 import { PermissionGuard } from '@/common/guards/permission.guard';
 
@@ -23,7 +24,8 @@ export class MomentController {
   constructor(
     private readonly momentService: MomentService,
     private readonly redisService: RedisService,
-    private readonly fileService: FileService
+    private readonly fileService: FileService,
+    private readonly pictureService: PictureService
   ) {}
 
   @Post()
@@ -97,5 +99,24 @@ export class MomentController {
     }
     res.imgList = imgs;
     return res;
+  }
+
+  @Public()
+  @Get('/image/:filename')
+  async showMomentPicture(
+    @Query('size') size:string, 
+    @Query('blur') blur:number, 
+    @Param('filename') filename: string,
+    @Res() res:Response
+  ) {
+    const { mimetype, tempLocation } = await this.pictureService.process(filename,size,blur);
+    res.setHeader('Content-Type', mimetype);
+    let file:ReadStream;
+    if (tempLocation) {
+      file = createReadStream(`${tempLocation}`);
+    } else {
+      file = createReadStream(join(process.cwd(),`${PICTURE_PATH}/${filename}`));
+    }
+    file.pipe(res);
   }
 }

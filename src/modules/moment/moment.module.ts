@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { MomentController } from './moment.controller';
 import { RedisModule } from '@/common/databases/redis/redis.module';
 import { FileModule } from '../file/file.module';
+import { PictureModule } from '../picture/picture.module';
 import { CheckVisibilityMiddleware, VerifyExistLabelMiddleware } from './moment.middleware';
 import { MomentService } from './moment.service';
 import { PrismaService } from '@/common/services/prisma.service';
@@ -10,7 +11,7 @@ import { PermissionService } from '@/common/services/permission.service';
 import { LabelService } from '../label/label.service';
 
 @Module({
-  imports: [RedisModule,FileModule],
+  imports: [RedisModule,FileModule, PictureModule],
   providers: [MomentService, PrismaService, RedisService, PermissionService, LabelService],
   controllers: [MomentController]
 })
