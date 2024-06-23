@@ -1,10 +1,10 @@
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@/modules/user/user.service';
 import { Injectable } from '@nestjs/common';
+import { user } from '@prisma/client';
+import { JWT_KEY } from '@/common/config/screct';
 import { comparePasswd } from "@/common/utils/passwd"
 import { PrismaService } from '@/common/services/prisma.service';
-import { user } from '@prisma/client';
-import { jwtConstants } from './auth.constants';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +13,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService
   ) {}
-  async signup(data): Promise<Omit<user,'password'>> {
+  async signUp(data): Promise<Omit<user,'password'>> {
     delete data.confirmPassword;
     const { password, ...userWithoutPassword } = await this.prismaService.user.create({ data });
     return userWithoutPassword;
@@ -28,9 +28,9 @@ export class AuthService {
     return null;
   }
   async signIn(user): Promise<{ access_token: string }> {
-    const payload = { id: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.name };
     return {
-      access_token: await this.jwtService.signAsync(payload, {secret: jwtConstants.secret}),
+      access_token: await this.jwtService.signAsync(payload, { secret: JWT_KEY }),
     };
   }
 }

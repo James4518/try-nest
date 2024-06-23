@@ -1,8 +1,10 @@
-import * as fs from 'fs';
-import * as path from 'path';
-console.log(fs.readFileSync(path.resolve(__dirname, "keys/private.key")));
-const PRIVATE_KEY = fs.readFileSync(path.resolve(__dirname, "keys/private.key"));
+import { readFileSync } from "fs";
+import { join, resolve } from "path";
+
+const JWT_KEY = readFileSync(join(resolve('.'),'src/common/config/keys/jwt.key')).toString('utf-8');
+const SESSION_KEY = readFileSync(join(resolve('.'),'src/common/config/keys/jwt.key'));
 
 export {
-  PRIVATE_KEY
+  JWT_KEY,
+  SESSION_KEY
 };

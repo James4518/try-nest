@@ -22,7 +22,7 @@ export class AuthController {
     const res = await this.userService.search(data.name);
     if (res) throw new BadRequestException('User already exists');
     data.password = await encryptPasswd(data.password);
-    return this.authService.signup(data);
+    return this.authService.signUp(data);
   }
 
   @Public()

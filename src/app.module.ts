@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { RedisModule } from './common/databases/redis/redis.module';
@@ -13,7 +12,6 @@ import { FileModule } from './modules/file/file.module';
 import { PictureModule } from './modules/picture/picture.module';
 import { AppService } from './app.service';
 import { PrismaService } from './common/services/prisma.service';
-import { CompositeGuard } from './common/guards/composite.guard';
 import { PermissionService } from './common/services/permission.service';
 
 @Module({
@@ -26,10 +24,7 @@ import { PermissionService } from './common/services/permission.service';
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, PermissionService,
-    {
-      provide: APP_GUARD,
-      useClass: CompositeGuard,
-    },
+
   ],
 })
 export class AppModule {}
